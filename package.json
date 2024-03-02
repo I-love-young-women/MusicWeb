@@ -1,0 +1,29 @@
+{
+  "name": "cloud-music",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "element-plus": "^2.5.6",
+    "lyric-parser": "^1.0.1",
+    "mitt": "^3.0.1",
+    "music-metadata": "^7.14.0",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.1",
+    "vue": "^3.4.19",
+    "vue-router": "^4.3.0",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "less": "^4.2.0",
+    "sass": "^1.71.1",
+    "vite": "^5.1.4"
+  }
+}
