@@ -5,7 +5,7 @@ export default createRouter({
     routes: [
         {
             path:'/',
-            component:()=>import('../views/Index.vue'),
+                      component:()=>import('../views/Index.vue'),
         },
         {
             path:'/layout',

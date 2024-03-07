@@ -4,7 +4,7 @@
       <router-view></router-view>
     </div>
   
-    <!-- <div class="right">
+ <!-- <div class="right">
       <Lyric></Lyric>
     </div> -->
     
@@ -21,7 +21,7 @@
     </div>
     
   </div>
-  
+
 </template>
 
 <script setup>
