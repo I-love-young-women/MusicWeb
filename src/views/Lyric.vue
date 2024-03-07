@@ -8,37 +8,57 @@
     ></audio>
     <div class="lyric">
       <div v-show="obj.played">
-        <div v-show="isLoading" style="height: 160px;line-height: 160px;">正在加载...</div>
-      <img ref="imgRef"   v-show="!isLoading"/>
+        <div v-show="isLoading" style="height: 160px; line-height: 160px">
+          正在加载...
+        </div>
+        <img ref="imgRef" v-show="!isLoading" />
       </div>
-      <div v-show="!obj.played" style="height: 160px;line-height: 160px;">
-          <h2>欢迎</h2>
+      <div v-show="!obj.played" style="height: 160px; line-height: 160px">
+        <h2>欢迎</h2>
       </div>
-      
+
       <div class="out">
         <ul :style="ulstyle" v-if="music">
-        <li
-          v-for="(item, index) in lrcData"
-          :key="index"
-          :style="{ color: lrcindex == index + 1 ? 'skyblue' : 'black' }"
-        >
-          {{ item.words }}
-        </li>
-      </ul>
+          <li
+            v-for="(item, index) in lrcData"
+            :key="index"
+            :style="{ color: lrcindex == index + 1 ? 'skyblue' : 'black' }"
+          >
+            {{ item.words }}
+          </li>
+        </ul>
       </div>
-   
+
       <div v-if="!music" style="height: 40vh; line-height: 40vh">暂无播放</div>
     </div>
+
+    <div>
+    <div id="aplayer"></div>
   </div>
+
+  
+
+    
+  </div>
+
 </template>
   <script setup>
 import { ref, onMounted, onBeforeUnmount, reactive } from "vue";
 import axios from "../hooks/request";
 import bus from "../Bus/EventBus.js";
 import { watchEffect } from "vue";
+// import "APlayer/dist/APlayer.min.css";
+// import APlayer from "aplayer";
 
 const obj = reactive({
   musics: [],
+  audio: {
+    name: "",
+    artist: "",
+    url: "",
+    cover: '', // prettier-ignore
+    lrc: "",
+  },
 });
 
 const imgRef = ref(null);
@@ -52,10 +72,9 @@ const dataWords = ref("");
 const lrcindex = ref("");
 const ulstyle = ref({
   transform: "",
-  played:false,
+  played: false,
 });
 const isLoading = ref(true);
-
 
 // 歌词数据转化为数组
 const formatLrc = () => {
@@ -94,46 +113,49 @@ const audioTime = (e) => {
 };
 
 onMounted(() => {
-  axios.get("/music/getAll/1/100").then((res) => {
-    obj.musics = res.data.data.list;
-  });
-  bus.on("play", (a) => {
-    LRC.value = a.lyrics;
+  bus.on("changeLyc", (a) => {
+    LRC.value = a.lrc;
     formatLrc();
-    music.value = "http://localhost:8080/" + a.fileUrl;
+    music.value = "http://localhost:8080/" + a.url;
     playM();
-    getCover(a.musicId)
+    getCover(a.musicId);
   });
 });
 
+
+
+
+
 function getCover(musicId) {
-  isLoading.value = true;  // 显示加载动画
+  isLoading.value = true; // 显示加载动画
   const timeout = setTimeout(() => {
     // 超时处理逻辑，切换至默认图片
     isLoading.value = false;
     imgRef.value.src = "@assets/default.png";
   }, 5000); // 设置超时时间为5秒（单位为毫秒）
 
-  axios.get("/music/getCover/" + musicId).then((res) => {
-    clearTimeout(timeout); // 取消超时计时器
-
-    if (res.data.code === 200) {
-      var img = new Image();
-      img.src = 'data:image/jpeg;base64,' + res.data.data;
-      img.onload = function() {
-        obj.played=true
-        img.width = 160;
-        img.height = 160;
-        imgRef.value.src = img.src;
-        imgRef.value.width = img.width;
-        imgRef.value.height = img.height;
-        isLoading.value = false;  // 隐藏加载动画
-      };
-    }
-  }).catch((error) => {
-    console.error("Failed to fetch cover image: ", error);
-    isLoading.value = false;  // 隐藏加载动画（如果发生错误也需要隐藏）
-  });
+  axios
+    .get("/music/getCover/" + musicId)
+    .then((res) => {
+      clearTimeout(timeout); // 取消超时计时器
+      if (res.data.code === 200) {
+        var img = new Image();
+        img.src = "data:image/jpeg;base64," + res.data.data;
+        img.onload = function () {
+          obj.played = true;
+          img.width = 160;
+          img.height = 160;
+          imgRef.value.src = img.src;
+          imgRef.value.width = img.width;
+          imgRef.value.height = img.height;
+          isLoading.value = false; // 隐藏加载动画
+        };
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to fetch cover image: ", error);
+      isLoading.value = false; // 隐藏加载动画（如果发生错误也需要隐藏）
+    });
 }
 
 function playM() {
@@ -142,7 +164,7 @@ function playM() {
 }
 
 onBeforeUnmount(() => {
-  bus.off("play");
+  bus.off("changeLyc");
 });
 
 watchEffect(() => {
@@ -171,14 +193,15 @@ watchEffect(() => {
 }
 
 .text {
-  background: #7e7e7e -webkit-linear-gradient(left, #76ca16, #0fa046) no-repeat 0 0;
+  background: #7e7e7e -webkit-linear-gradient(left, #76ca16, #0fa046) no-repeat 0
+    0;
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   background-size: 0 100%;
 }
 
-.out{
-  overflow: hidden;;
+.out {
+  overflow: hidden;
 }
 .load {
   background-size: 100% 100%;
@@ -188,7 +211,6 @@ watchEffect(() => {
 .lyric {
   overflow: hidden;
   text-align: center;
-
 }
 
 ul {
