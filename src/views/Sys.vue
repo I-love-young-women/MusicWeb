@@ -1,30 +1,41 @@
 <template>
     <div class="login-container">
       <div class="from">
-        <h2>欢迎登录</h2>
-        <input type="text" v-model="phoneNumber" placeholder="手机号" required>
-        <input type="password" v-model="password" placeholder="密码" required>
-        <button @click="login">登录</button><router-link to="/sys">管理</router-link>
+        <h2>管理登录</h2>
+        <input type="text" v-model="id" placeholder="id" required>
+        <input type="password" v-model="pwd" placeholder="密码" required>
+        <button @click="login">登录</button>
       </div>
     </div>
   </template>
   
   <script>
-  import axios from '../hooks/request';
+  import axios from 'axios';
   export default {
     data() {
       return {
-        phoneNumber: "",
-        password: ""
+        id: "",
+        pwd: ""
       };
     },
     methods: {
       login() {
         // 在这里可以添加登录逻辑，例如发送登录请求到后端验证
         // 登录成功后可以跳转到其他页面
-        axios.get("users/login/"+this.phoneNumber+"/"+this.password).then(res=>{
-            localStorage.setItem("token",res.data.data)
-            this.$router.push("index")
+        axios.post("http://localhost:8080/admins/login",{
+            id:this.id,
+            pwd:this.pwd
+        }).then(res=>{
+            // if(res.data.code===200){
+            //     console.log(res.data);
+                this.$router.push("m")
+            // }else{
+            //     console.log(res.data);
+            //     console.log(this.pwd);
+            //     alert(res.data.msg);
+            // }
+            
+            // this.$router.push("home")
         })
       }
     }
