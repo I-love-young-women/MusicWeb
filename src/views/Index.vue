@@ -5,22 +5,11 @@
 </template>
 
 <script setup>
-import { onMounted, reactive } from "vue";
-import { useRouter } from "vue-router";
-import axios from '../hooks/request'
+import { useRouter } from 'vue-router';
+
 const router = useRouter();
-const user = reactive({})
-onMounted(()=>{
-getOne()
-})
-function getOne(){
-    axios.get("users/function/getOne").then(res=>{
-        console.log(res.data);
-    })
-}
+
 const goMain = () => {
-  router.push("/layout");
-};
+  router.push('/layout');
+}
 </script>
-<style scoped>
-</style>

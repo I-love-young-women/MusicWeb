@@ -75,11 +75,11 @@ export default {
     },
   },
   mounted() {
-    axios.get("/music/getAll").then(res=>{
-      this.LRC=res.data[0].lyrics
-      this.formatLrc()
-      this.music="http://localhost:8080/"+ res.data[0].fileUrl
-    })
+    // axios.get("/music/getAll").then(res=>{
+    //   this.LRC=res.data[0].lyrics
+    //   this.formatLrc()
+    //   this.music="http://localhost:8080/"+ res.data[0].fileUrl
+    // })
     
   },
 };
