@@ -3,8 +3,16 @@
     <el-table :data="obj.pageInfo.list">
       <el-table-column prop="id" label="编号" width="100">
         <template #default="{ $index }">
-          <el-button @click="play(obj.pageInfo.list[$index])">播放</el-button>
-        </template>
+  <el-icon @click="play(obj.pageInfo.list[$index])" style="font-size: 25px;" class="hover-icon">
+    <component
+      :is="
+        obj.pageInfo.list[$index].musicId === obj.playing
+          ? 'VideoPause'
+          : 'VideoPlay'
+      "
+    />
+  </el-icon>
+</template>
       </el-table-column>
       <el-table-column prop="title" label="歌曲" width="400"></el-table-column>
       <el-table-column prop="id" label="编号" width="130">
@@ -36,11 +44,13 @@ const obj = reactive({
   musics: "",
   musicUrl: "",
   pageInfo: {},
+  playing: "",
 });
 
 const getPage = (page) => {
-  axios.get("/music/getAll/" + page + "/7").then((res) => {
+  axios.get("/music/getAll/" + page + "/8").then((res) => {
     obj.pageInfo = res.data.data;
+    console.log(obj.pageInfo);
   });
 };
 
@@ -53,7 +63,12 @@ function handlePageChange(page) {
 }
 
 function play(i) {
+  obj.playing = i.musicId;
   bus.emit("changeMusic", i);
+}
+
+function getImageSrc(item) {
+  return `img/${item.musicId === obj.playing ? "暂停" : "播放"}.png`;
 }
 
 function add(i) {
@@ -72,7 +87,7 @@ li {
 }
 .nav_down {
   position: absolute;
-  top: 58vh;
+  top: 68vh;
 }
 
 .el-form-item {
@@ -88,11 +103,16 @@ li {
 .el-table th {
   background-color: transparent !important;
   border-bottom: 1px solid #5078fc !important;
-  text:rgb(201,204,207)
+  text: rgb(201, 204, 207);
 }
 
 .el-table tr {
   background-color: transparent !important;
+}
+
+.el-pagination * {
+  background-color: transparent !important;
+  color: rgba(254, 254, 254, 1) !important;
 }
 
 .el-table--enable-row-transition .el-table__body td,
@@ -123,4 +143,16 @@ li {
 .el-form-item__label {
   color: white !important;
 }
+
+.hover-icon {
+  // display: none;
+  transition: color 0.3s; /* 添加过渡效果，使颜色变化更加平滑 */
+}
+
+// .hover-icon:hover {
+//   color: white; /* 鼠标悬停时改变图标的颜色为白色 */
+// }
+// .el-table-column:hover .hover-icon{
+//   display: inline-block !important;
+// }
 </style>

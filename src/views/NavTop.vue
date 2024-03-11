@@ -28,4 +28,9 @@ const toPage=(type)=>{
 
 <style lang="scss" scoped>
 
+.el-button {
+  background-color: transparent !important;
+  color: rgba(254, 254, 254, 1) !important;
+
+}
 </style>

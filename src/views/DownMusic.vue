@@ -112,12 +112,11 @@ onMounted(() => {
 });
 
 function changeLy(i){
-  console.log(i);
   if (i.player) {
     const coverUrl = ap.list.audios[i.index].cover;
     obj.cover = coverUrl; // 设置封面图片
     let index = obj.musics.findIndex(a => a.title == ap.list.audios[i.index].name);
-    bus.emit("changeBackground",obj.musics[index].musicId)
+    bus.emit("changeBackground",obj.musics[index].musicId?obj.musics[index].musicId:1)
     formatLrc(obj.musics[index].lyrics);
   }
 }
@@ -211,7 +210,6 @@ const formatLrc = (a) => {
   }
   obj.lrc=arr;
 };
-
 function addMyAudio() {
   ap = new APlayer({
     container: document.getElementById("aplayer"),
@@ -221,6 +219,9 @@ function addMyAudio() {
     listFolded: false,
     lrcType: 2,
     mutex:true,
+    loop: 'all',
+    order: 'random',
+    preload: 'auto',
   });
 }
 
@@ -246,7 +247,7 @@ function addMyAudio() {
 }
 .lyric{
   overflow: hidden;
- 
+  text-align: center !important;
 }
 .lyr{
   list-style: none;
