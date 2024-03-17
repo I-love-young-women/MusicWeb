@@ -15,9 +15,40 @@ export default createRouter({
       path: '/sys',
       component: () => import('../views/Sys.vue'),
     },
+    // {
+    //   path: '/index',
+    //   component: () => import('../views/Index.vue'),
+    // },
     {
-      path: '/index',
-      component: () => import('../views/Index.vue'),
+      path:'/m',
+      component:()=>import('../views/Mlayout.vue')
+    },
+    {
+      path:'/mlayout',
+      component:()=>import('../views/Mlayout.vue'),
+      children:[
+        {
+          path:'',
+          redirect:"home",
+          component:()=>import('../views/Home.vue')
+        },
+        {
+          path:'userlist',
+          component:()=>import('../views/UserList.vue')
+        },
+        {
+          path:'adduser',
+          component:()=>import('../views/AddUser.vue')
+        },
+        {
+          path:'musiclist',
+          component:()=>import('../views/MusicList.vue')
+        },
+        {
+          path:'addmusic',
+          component:()=>import('../views/AddMusic.vue')
+        }
+      ]
     },
     {
       path: '/layout',
@@ -46,37 +77,6 @@ export default createRouter({
         {
           path: 'myRecent',
           component: () => import('../views/MyRecent.vue')
-        },
-        {
-          path:'/m',
-          component:()=>import('../views/Mlayout.vue')
-        },
-        {
-          path:'/mlayout',
-          component:()=>import('../views/Mlayout.vue'),
-          children:[
-            {
-              path:'',
-              redirect:"home",
-              component:()=>import('../views/Home.vue')
-            },
-            {
-              path:'userlist',
-              component:()=>import('../views/UserList.vue')
-            },
-            {
-              path:'adduser',
-              component:()=>import('../views/AddUser.vue')
-            },
-            {
-              path:'musiclist',
-              component:()=>import('../views/MusicList.vue')
-            },
-            {
-              path:'addmusic',
-              component:()=>import('../views/AddMusic.vue')
-            }
-          ]
         },
       ]
     },

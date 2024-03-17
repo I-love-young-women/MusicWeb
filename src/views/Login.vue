@@ -24,7 +24,7 @@
         // 登录成功后可以跳转到其他页面
         axios.get("users/login/"+this.phoneNumber+"/"+this.password).then(res=>{
             localStorage.setItem("token",res.data.data)
-            this.$router.push("index")
+            this.$router.push("layout")
         })
       }
     }

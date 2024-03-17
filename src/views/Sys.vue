@@ -22,18 +22,13 @@
       login() {
         // 在这里可以添加登录逻辑，例如发送登录请求到后端验证
         // 登录成功后可以跳转到其他页面
-        axios.post("http://localhost:8080/admins/login",{
-            id:this.id,
-            pwd:this.pwd
-        }).then(res=>{
-            // if(res.data.code===200){
-            //     console.log(res.data);
+        axios.get("http://localhost:8080/admins/login/?id="+this.id+"&pwd="+this.pwd).then(res=>{
+            if(res.data.code===200){
+                console.log(res.data);
                 this.$router.push("m")
-            // }else{
-            //     console.log(res.data);
-            //     console.log(this.pwd);
-            //     alert(res.data.msg);
-            // }
+            }else{
+                alert(res.data.msg);
+            }
             
             // this.$router.push("home")
         })

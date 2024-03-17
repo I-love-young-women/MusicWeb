@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <div>
       <router-view></router-view>
     </div>
 
@@ -7,10 +8,8 @@
       <Lyric></Lyric>
     </div>  -->
 
-    <div class="right"></div>
-    <div class="down">
-      <DownMusic></DownMusic>
-    </div>
+    <!-- <div class="right"></div> -->
+    
     <div class="showtext"></div>
     <div class="blur-effect"></div>
     <div class="back"></div>
@@ -39,7 +38,7 @@ onMounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
 /* 可以添加样式 */
 :root {
   --theme-color: #ebd0c2;

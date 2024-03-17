@@ -81,9 +81,11 @@ function uploadFile() {
 }
 
   </script>
-  <style scoped lang='scss'>
+  <style scoped>
   .add{
-    .title {
+   
+  }
+  .title {
       font-size: 20px;
       padding-bottom: 10px;
       border-bottom: 1px solid #ddd;
@@ -92,5 +94,4 @@ function uploadFile() {
     .content{
       width: 50%;
     }
-  }
   </style>

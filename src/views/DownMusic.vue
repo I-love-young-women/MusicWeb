@@ -111,12 +111,27 @@ onMounted(() => {
 
 });
 
-function changeLy(i){
+function changeLy(i) {
+  console.log(obj.musics);
   if (i.player) {
-    const coverUrl = ap.list.audios[i.index].cover;
-    obj.cover = coverUrl; // 设置封面图片
-    let index = obj.musics.findIndex(a => a.title == ap.list.audios[i.index].name);
-    bus.emit("changeBackground",obj.musics[index].musicId?obj.musics[index].musicId:1)
+    // const coverUrl = ap.list.audios[i.index].cover;
+    // if (coverUrl) {
+    //   obj.cover = coverUrl; // 设置封面图片
+    // } else {
+    
+    // }
+    axios.get("/music/getCover/" + i).then((res) => {
+        var img = new Image();
+        img.src = "data:image/jpeg;base64," + res.data.data;
+        obj.cover=img.src; 
+      });
+    let index = obj.musics.findIndex(
+      (a) => a.title == ap.list.audios[i.index].name
+    );
+    bus.emit(
+      "changeBackground",
+      obj.musics[index].musicId ? obj.musics[index].musicId : 1
+    );
     formatLrc(obj.musics[index].lyrics);
   }
 }
