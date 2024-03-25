@@ -1,6 +1,7 @@
 <template>
-<div class="left">
-    <el-table :data="obj.list">
+<div class="left"    >
+  <el-scrollbar >
+    <el-table :data="obj.list"   > 
       <el-table-column prop="musicId" label="编号" width="100">
         <template #default="{ $index }">
   <el-icon @click="play(obj.list[$index])" style="font-size: 25px;" class="hover-icon">
@@ -33,15 +34,21 @@
     <div class="nav_down">
     
     </div>
+  </el-scrollbar>
     </div>
 </template>
 
 <script setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive,ref } from "vue";
 import { useRoute } from "vue-router";
 import axios from "../hooks/request";
 import bus from "../Bus/EventBus.js";
 
+
+const count = ref()
+const load = () => {
+  count.value += 2
+}
 const obj=reactive({
     list:[],
     playing:1,
@@ -70,5 +77,22 @@ function rmList(id){
 </script>
 
 <style lang="scss" scoped>
-
+// .infinite-list {
+//   height: 300px;
+//   padding: 0;
+//   margin: 0;
+//   list-style: none;
+// }
+// .infinite-list .infinite-list-item {
+//   // display: flex;
+//   // align-items: center;
+//   // justify-content: center;
+//   // height: 50px;
+//   // background: var(--el-color-primary-light-9);
+//   // margin: 10px;
+//   // color: var(--el-color-primary);
+// }
+// .infinite-list .infinite-list-item + .list-item {
+//   margin-top: 10px;
+// }
 </style>

@@ -28,7 +28,6 @@ function getList() {
     .get("/playlists/getList?id=" + sessionStorage.getItem("userId"))
     .then((res) => {
       obj.list = res.data.data;
-      // console.log(obj.list);
     });
 }
 const router = useRouter();

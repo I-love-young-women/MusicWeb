@@ -140,6 +140,7 @@ onMounted(() => {
   addMyAudio();
   bus.on("addMusic", (a) => {
     addMusic(a);
+    
   });
   bus.on("changeList", (a) => {
     ap.list.clear();
@@ -206,7 +207,6 @@ function getHis(){
 
 function addMusic(a) {
   let index = -1;
-
   ap.list.audios.forEach((music, i) => {
     if (music.name === a.title) {
       index = i;
@@ -214,6 +214,7 @@ function addMusic(a) {
   });
   if (index < 0) {
     let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
+    console.log(cover1);
     if (cover1.length <= 0) {
       cover1 = "img/default.png";
     }
