@@ -18,6 +18,7 @@
       <el-table-column prop="id" label="编号" width="130">
         <template #default="{ $index }">
           <el-button @click="add(obj.pageInfo.list[$index])">+</el-button>
+          <el-button @click="addList(obj.pageInfo.list[$index])">addList</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="artist" label="作者" width="180"></el-table-column>
@@ -45,6 +46,7 @@ const obj = reactive({
   musicUrl: "",
   pageInfo: {},
   playing: "",
+  user:{}
 });
 
 const getPage = (page) => {
@@ -53,9 +55,17 @@ const getPage = (page) => {
     console.log(obj.pageInfo);
   });
 };
-
+function getOne(){
+  let user = JSON.parse(sessionStorage.getItem("user"))
+  obj.user=user
+  console.log(obj.user+"11");
+}
+function addList(index){
+  console.log(index);
+}
 onMounted(() => {
   getPage(1);
+  getOne();
 });
 
 function handlePageChange(page) {
