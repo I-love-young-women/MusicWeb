@@ -90,45 +90,43 @@ const obj = reactive({
   what:-1
 });
 
-function down(i){
-  console.log(i);
+function down(i) {
+    console.log(i);
+
     // 发送get请求
     axios
     .get('/music/downloadFile', {
         params: {
             // 向后端传入下载路径
             file: i,
-        }
+        },
+        responseType: 'blob'
     })
-    .then(res => {
-        // alert("请求成功");
-        console.log(res.data); // 获取服务端提供的数据
-        let blob = new Blob([res.data])
-        let contentDisposition = res.headers['Content-Type: text/plain; charset=UTF-8']
-        let pattern = new RegExp('filename=([^;]+\\.[^\\.;]+);*')
-        let result = pattern.exec(contentDisposition)
-        // 使用decodeURI对名字进行解码
-        let fileName = decodeURI(result[1])
-        let downloadElement = document.createElement('a')
-        // 创建下载的链接
-        let href = window.URL.createObjectURL(blob)
-        downloadElement.style.display = 'none'
-        downloadElement.href = href
-        // 下载后文件名
-        downloadElement.download = fileName
-        document.body.appendChild(downloadElement)
-        // 点击下载
-        downloadElement.click()
-        // 下载完成移除元素
-        document.body.removeChild(downloadElement)
-        // 释放掉blob对象
-        window.URL.revokeObjectURL(href)
+    .then(response => {
+        let blob = new Blob([response.data], { type: 'audio/mpeg' });
+
+        // 创建下载链接并下载文件
+        let downloadElement = document.createElement('a');
+        let href = window.URL.createObjectURL(blob);
+
+        downloadElement.style.display = 'none';
+        downloadElement.href = href;
+        downloadElement.download = i; // 设置下载后的文件名
+
+        document.body.appendChild(downloadElement);
+        downloadElement.click();
+
+        // 下载完成后清理操作
+        document.body.removeChild(downloadElement);
+        window.URL.revokeObjectURL(href);
     })
-    .catch(() => {
+    .catch(error => {
+        console.error('下载出错：', error);
         alert("请求出错");
-    })
-    // alert(url);
+    });
 }
+
+
 function addList(a){
   obj.what=a
   visible.value = true

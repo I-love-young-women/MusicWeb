@@ -23,7 +23,7 @@
           <el-dropdown size="small" split-button type="primary">...<template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item @click="rmList(obj.list[$index].musicId)">移出</el-dropdown-item>
-        <el-dropdown-item >下载</el-dropdown-item>
+        <el-dropdown-item @click="down(obj.list[$index].fileUrl)">下载</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -60,6 +60,41 @@ function getList(){
     axios.get("/history/getHis?id="+sessionStorage.getItem("userId")).then(res=>{
         obj.list=res.data
     })
+}
+function down(i) {
+    console.log(i);
+
+    // 发送get请求
+    axios
+    .get('/music/downloadFile', {
+        params: {
+            // 向后端传入下载路径
+            file: i,
+        },
+        responseType: 'blob'
+    })
+    .then(response => {
+        let blob = new Blob([response.data], { type: 'audio/mpeg' });
+
+        // 创建下载链接并下载文件
+        let downloadElement = document.createElement('a');
+        let href = window.URL.createObjectURL(blob);
+
+        downloadElement.style.display = 'none';
+        downloadElement.href = href;
+        downloadElement.download = i; // 设置下载后的文件名
+
+        document.body.appendChild(downloadElement);
+        downloadElement.click();
+
+        // 下载完成后清理操作
+        document.body.removeChild(downloadElement);
+        window.URL.revokeObjectURL(href);
+    })
+    .catch(error => {
+        console.error('下载出错：', error);
+        alert("请求出错");
+    });
 }
 function rmList(id){
     axios.delete("/history/delete/"+sessionStorage.getItem("userId")+"/"+id).then(res=>{

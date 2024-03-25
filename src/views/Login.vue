@@ -1,11 +1,14 @@
 <template>
   <div class="login-container">
+    <div class="background-animation"></div>
     <div class="from">
       <h2>欢迎登录</h2>
       <input type="text" v-model="phoneNumber" placeholder="手机号" required />
       <input type="password" v-model="password" placeholder="密码" required />
-      <button @click="login">登录</button
-      ><router-link to="/sys">管理</router-link>
+      <button @click="login">登录</button>
+      <router-link to="/sys">管理</router-link>
+      <router-link to="/reg">注册</router-link>
+
     </div>
   </div>
 </template>
@@ -38,16 +41,36 @@ export default {
 };
 </script>
   
-  <style scoped>
+<style scoped>
 .login-container {
+  background-color: rgba(65, 158, 240, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f0f0;
+  overflow: hidden; /* 隐藏超出部分的内容 */
 }
 
-.form {
+.background-animation {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg') center/cover no-repeat;
+  animation: backgroundSlide 1s linear forwards;
+  transition: transform 2s ease; /* 添加过渡效果 */
+}
+
+@keyframes backgroundSlide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.from {
+  margin-left: 50%; /* 或者其他你想要的距离值 */
   padding: 20px;
   border-radius: 10px;
   background-color: #fff;
@@ -77,4 +100,3 @@ button {
   cursor: pointer;
 }
 </style>
-  

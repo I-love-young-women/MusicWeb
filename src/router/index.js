@@ -15,6 +15,10 @@ export default createRouter({
       path: '/sys',
       component: () => import('../views/Sys.vue'),
     },
+    {
+      path: '/reg',
+      component: () => import('../views/Reg.vue'),
+    },
     // {
     //   path: '/index',
     //   component: () => import('../views/Index.vue'),

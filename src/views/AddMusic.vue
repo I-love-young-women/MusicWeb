@@ -82,9 +82,7 @@ function uploadFile() {
 
   </script>
   <style scoped>
-  .add{
-   
-  }
+
   .title {
       font-size: 20px;
       padding-bottom: 10px;

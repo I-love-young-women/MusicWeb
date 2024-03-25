@@ -31,8 +31,8 @@
         <!-- <el-table-column prop="lyrics" label="歌词" width="100"></el-table-column> -->
         <el-table-column prop="createdAt" label="创建时间" width="120"></el-table-column>
         <el-table-column label="操作">
-          <template slot-scope="scope">
-            <el-button size="mini">编辑</el-button>
+          <template #default="scope">
+            <el-button size="mini" @click="change(scope)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -45,6 +45,9 @@ import axios from "../hooks/request";
 const obj = reactive({
   musics:""
 })
+function change(i){
+console.log(i.row);
+}
 onMounted(()=>{
   axios.get("/music/getAll/1/100").then((res) => {
     obj.musics = res.data.data.list;
