@@ -15,11 +15,7 @@
 </template>
       </el-table-column>
       <el-table-column prop="title" label="歌曲" width="400"></el-table-column>
-      <el-table-column prop="id" label="编号" width="130">
-        <template #default="{ $index }">
-          <el-button @click="add(obj.pageInfo.list[$index])">+</el-button>
-        </template>
-      </el-table-column>
+
     
       <el-table-column prop="artist" label="作者" width="180"></el-table-column>
       <el-table-column prop="album" label="专辑" width="200"></el-table-column>
