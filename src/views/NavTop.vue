@@ -5,10 +5,10 @@
     </div>
     <div>
       <el-button @click="toPage('play')">正在播放</el-button>
-      <!-- <el-button @click="toPage('recommend')">推荐</el-button>
+      <el-button @click="toPage('recommend')">推荐</el-button>
       <el-button @click="toPage('search')">搜索</el-button>
       <el-button @click="toPage('myMusic')">我的歌单</el-button>
-      <el-button @click="toPage('myRecent')">我听过的</el-button> -->
+      <el-button @click="toPage('myRecent')">我听过的</el-button>
     </div>
   </div>
 </template>
@@ -21,8 +21,7 @@ const router = useRouter();
 
 
 const toPage=(type)=>{
-
-  router.push(`/layout/${type}`);
+  router.replace(`/layout/${type}`);
 }
 </script>
 
@@ -31,6 +30,5 @@ const toPage=(type)=>{
 .el-button {
   background-color: transparent !important;
   color: rgba(254, 254, 254, 1) !important;
-
 }
 </style>

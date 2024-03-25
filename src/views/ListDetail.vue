@@ -1,5 +1,5 @@
 <template>
-<div class="left">
+    <div class="left">
     <el-table :data="obj.list">
       <el-table-column prop="musicId" label="编号" width="100">
         <template #default="{ $index }">
@@ -22,7 +22,7 @@
         <template #default="{ $index }">
           <el-dropdown size="small" split-button type="primary">...<template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item @click="rmList(obj.list[$index].musicId)">移出</el-dropdown-item>
+        <el-dropdown-item @click="rmList(obj.list[$index].musicId)">移出我的歌单</el-dropdown-item>
         <el-dropdown-item >下载</el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -30,9 +30,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="nav_down">
-    
-    </div>
+ 
     </div>
 </template>
 
@@ -41,6 +39,8 @@ import { onMounted, reactive } from "vue";
 import { useRoute } from "vue-router";
 import axios from "../hooks/request";
 import bus from "../Bus/EventBus.js";
+
+const route=useRoute();
 
 const obj=reactive({
     list:[],
@@ -53,18 +53,28 @@ function play(i) {
   bus.emit("changeMusic", i);
 }
 onMounted(()=>{
-    getList()
+    let pId =route.query.id
+    if(pId){
+        getList(pId)
+    }
+    
 })
 
-function getList(){
-    axios.get("/history/getHis?id="+sessionStorage.getItem("userId")).then(res=>{
-        obj.list=res.data
-    })
+function getList(id){
+    axios.
+        get("/playlists/getOne?id=" + id)
+    .then((res) => {
+        obj.playlist=res.data.data
+      obj.list = res.data.data.list;
+      bus.emit("changeList", obj.list);
+      obj.playing=obj.list[0].musicId
+    });
 }
+
 function rmList(id){
-    axios.delete("/history/delete/"+sessionStorage.getItem("userId")+"/"+id).then(res=>{
-        alert(res.data.msg);
-        getList()
+    axios.delete("/user-playlist/dMusic/"+obj.playlist.playlistId+"/"+id).then(res=>{
+        alert(res.data.msg)
+        getList(obj.playlist.playlistId)
     })
 }
 </script>

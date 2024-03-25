@@ -21,8 +21,12 @@ const obj = reactive({
 
 onMounted(() =>{
   axios.get("users/function/getOne").then(res=>{
+<<<<<<< HEAD
     obj.user=res.data.data
     sessionStorage.setItem("user",JSON.stringify(res.data.data))
+=======
+    sessionStorage.setItem("userId",res.data.data.userId);
+>>>>>>> de0303f2a2f3bce23245d46656670a40e30d402a
   })
 })
 </script>

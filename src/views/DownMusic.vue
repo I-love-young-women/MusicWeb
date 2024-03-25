@@ -4,22 +4,29 @@
     <div class="lrc">
       <div>
         <div class="img">
-          <img :src="obj.cover" alt="Cover Image" width="160">      </div>
+          <img :src="obj.cover" alt="Cover Image" width="160" />
         </div>
-        <div class="lyric" ref="lyricContainer">
-          <ul :style="ulstyle" class="lyr">
-            <li
-          v-for="(item, index) in obj.lrc"
-          :key="index"
-          :style="{ color: currentLine === index ? 'skyblue' : 'rgb(201,204,207)' }"
-        >
-          {{ item.words }}
-        </li>
-          </ul>
-        
       </div>
-
+      <div class="lyric" ref="lyricContainer" @mousedown="handleMouseDown">
+        <ul :style="ulstyle" class="lyr">
+          <li
+            v-for="(item, index) in obj.lrc"
+            :key="index"
+            :style="{
+              color: currentLine === index ? 'skyblue' : 'rgb(201,204,207)',
+            }"
+            class="ly"
+            :data-time="item.time"
+          >
+            {{ item.words }}
+          </li>
+        </ul>
+      </div>
     </div>
+    <div value="" v-if="isMouseDown" class="hr">
+      <hr style="color: blue" />
+    </div>
+    <div class="move"></div>
   </div>
 </template>
   
@@ -30,13 +37,15 @@ import APlayer from "aplayer";
 import axios from "../hooks/request";
 import bus from "../Bus/EventBus";
 const obj = reactive({
-  musics:[],
+  musics: [],
   lrc: [],
-  cover:"img/default.png",
+  cover: "img/default.png",
+  isMove: false,
+  history:[]
 });
-const ulstyle=reactive({
-        transform:''
-      });
+const ulstyle = reactive({
+  transform: "",
+});
 
 const audio = reactive([
   {
@@ -44,9 +53,9 @@ const audio = reactive([
     artist: "葛东琪",
     url: "http://localhost:8080/music/悬溺.mp3",
     cover: "http://localhost:8080/img/悬溺.jpg",
-    lrc:`[00:00.000] 作词 : 葛东琪
-[00:00.730] 作曲 : 葛东琪
-[00:01.460] 编曲 : 葛东琪
+    lrc: `[00:00.000] 作词 : 葛东琪
+          [00:00.730] 作曲 : 葛东琪
+          [00:01.460] 编曲 : 葛东琪
 [00:02.190] 制作人 : 葛东琪
 [00:02.930]编曲 : 葛东琪
 [00:31.430]我主张制止不了就放任
@@ -80,119 +89,183 @@ const audio = reactive([
 [03:14.190]录音师 : 葛东琪
 [03:15.220]混音师 : 葛东琪
 [03:16.050]制作人 : 葛东琪
-`
+`,
   },
 ]);
 
 const lyricContainer = ref(null);
 const currentLine = ref(0);
 
+const isMouseDown = ref(false);
+const startY = ref(0);
+const startTransformY = ref(0);
 let ap; // 声明 APlayer 实例
 
+const handleMouseDown = (e) => {
+  isMouseDown.value = true;
+  startY.value = e.clientY;
+  startTransformY.value = parseFloat(
+    ulstyle.transform.replace("translateY(", "").replace("px)", "")
+  );
+};
+
+const handleMouseUp = () => {
+  isMouseDown.value = false;
+  const liElement = document.elementFromPoint(1500, 348.5);
+  if (liElement) {
+    if (!isMouseDown.value) {
+      const dataTimeValue = liElement.getAttribute("data-time"); // 获取 data-time 属性的值
+      ap.seek(dataTimeValue);
+    }
+  } else {
+    console.log("未找到符合条件的 <li> 元素");
+  }
+};
+
+const handleMouseMove = (e) => {
+  if (isMouseDown.value) {
+    const diffY = e.clientY - startY.value;
+    ulstyle.transform = `translateY(${startTransformY.value + diffY}px)`;
+  }
+};
+function getAllMusic() {
+  axios.get("/music/getAll").then((res) => {
+    obj.musics = res.data.data;
+  });
+}
 onMounted(() => {
-  axios.get("/music/getAll").then(res=>{
-    obj.musics=res.data.data;
-  })
+  document.querySelector(".lrc").addEventListener("mousemove", handleMouseMove);
+  document.querySelector(".lrc").addEventListener("mouseup", handleMouseUp);
+  getAllMusic();
   addMyAudio();
   bus.on("addMusic", (a) => {
     addMusic(a);
   });
-  bus.on("changeMusic",(a)=>{
-    changeMusic(a)
-    })
+  bus.on("changeList", (a) => {
+    ap.list.clear();
+    a.forEach((a) => addMusic(a));
+    ap.list.switch(0);
+    ap.play();
+  });
+  bus.on("changeMusic", (a) => {
+    changeMusic(a);
+  });
   ap.audio.addEventListener("timeupdate", function () {
     // 获取当前播放时间
     var currentTime = ap.audio.currentTime;
     updateLyric(currentTime);
   });
-  ap.on("loadstart",(e)=>{
+  ap.on("loadstart", (e) => {
     changeLy(ap.list);
-  })
-
+  });
 });
 
 function changeLy(i) {
-  console.log(obj.musics);
-  if (i.player) {
-    // const coverUrl = ap.list.audios[i.index].cover;
-    // if (coverUrl) {
-    //   obj.cover = coverUrl; // 设置封面图片
-    // } else {
-    
-    // }
+  let index = -1;
+  if (typeof i != "object") {
     axios.get("/music/getCover/" + i).then((res) => {
-        var img = new Image();
-        img.src = "data:image/jpeg;base64," + res.data.data;
-        obj.cover=img.src; 
-      });
-    let index = obj.musics.findIndex(
+      var img = new Image();
+      img.src = "data:image/jpeg;base64," + res.data.data;
+      obj.cover = img.src;
+    });
+  } else {
+    index = obj.musics.findIndex(
       (a) => a.title == ap.list.audios[i.index].name
     );
-    bus.emit(
-      "changeBackground",
-      obj.musics[index].musicId ? obj.musics[index].musicId : 1
-    );
-    formatLrc(obj.musics[index].lyrics);
-  }
-}
-
-function addMusic(a){
-  let index = -1;
-    ap.list.audios.forEach((music, i) => {
-      if (music.name === a.title) {
-        index = i;
-      }
-    });
-    if (index < 0) {
-      let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
-      ap.list.add([
-        {
-          name: a.title,
-          artist: a.artist,
-          url: "http://localhost:8080/" + a.fileUrl,
-          cover: "http://localhost:8080/" + cover1,
-          lrc: a.lyrics.replace(/(\r\n|\n|\r)/gm, ""),
-          theme: "#ebd0c2",
-        },
-      ]);
-    } else {
-      ap.list.remove(index);
+    if (index >= 0) {
+      axios.get("/music/getCover/" + obj.musics[index].musicId).then((res) => {
+        var img = new Image();
+        img.src = "data:image/jpeg;base64," + res.data.data;
+        obj.cover = img.src;
+      });
     }
-    ap.play();
+  }
+  let musicId= obj.musics[index] ? obj.musics[index].musicId : 1
+  bus.emit("changeBackground",musicId);
+   let index2=obj.history.findIndex(a=>a.title == obj.musics[index].title)
+   
+  let hId=obj.history[index2] ? obj.history[index2].hId:'';
+  const userPlaylist={
+    hId:hId,
+    userId: sessionStorage.getItem("userId"),
+    musicId:musicId,
+    playTime:new Date()
+  }
+  if(userPlaylist){
+    axios.post("/history/addHis",userPlaylist).then(res=>{
+      
+    })
+  }
+  formatLrc(obj.musics[index] ? obj.musics[index].lyrics : audio[0].lrc);
+}
+function getHis(){
+  axios.get("/history/getHis?id="+sessionStorage.getItem("userId")).then(res=>{
+        obj.history=res.data
+  })
 }
 
-function changeMusic(a){
-    let index = -1;
+function addMusic(a) {
+  let index = -1;
+
+  ap.list.audios.forEach((music, i) => {
+    if (music.name === a.title) {
+      index = i;
+    }
+  });
+  if (index < 0) {
+    let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
+    if (cover1.length <= 0) {
+      cover1 = "img/default.png";
+    }
+    ap.list.add([
+      {
+        name: a.title,
+        artist: a.artist,
+        url: "http://localhost:8080/" + a.fileUrl,
+        cover: "http://localhost:8080/" + cover1,
+        lrc: a.lyrics.replace(/(\r\n|\n|\r)/gm, ""),
+        theme: "#ebd0c2",
+      },
+    ]);
+  } else {
+    ap.list.remove(index);
+  }
+  // ap.play();
+}
+
+function changeMusic(a) {
+  let index = -1;
+  ap.list.audios.forEach((music, i) => {
+    if (music.name === a.title) {
+      index = i;
+    }
+  });
+  if (index < 0) {
+    let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
+    if (cover1.length <= 0) {
+      cover1 = "img/default.png";
+    }
+    ap.list.add([
+      {
+        name: a.title,
+        artist: a.artist,
+        url: "http://localhost:8080/" + a.fileUrl,
+        cover: "http://localhost:8080/" + cover1,
+        lrc: a.lyrics.replace(/(\r\n|\n|\r)/gm, ""),
+        theme: "#ebd0c2",
+      },
+    ]);
     ap.list.audios.forEach((music, i) => {
       if (music.name === a.title) {
         index = i;
       }
     });
-    if (index < 0) {
-      let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
-      ap.list.add([
-        {
-          name: a.title,          
-          artist: a.artist,
-          url: "http://localhost:8080/" + a.fileUrl,
-          cover: "http://localhost:8080/" + cover1,
-          lrc: a.lyrics.replace(/(\r\n|\n|\r)/gm, ""),
-          theme: "#ebd0c2",
-        },
-      ]);
-      ap.list.audios.forEach((music, i) => {
-        if (music.name === a.title) {
-        index = i;
-      }
-    });
-    } 
-    ap.list.switch(index);    
-    ap.play();
-    obj.cover=ap.list.audios[index].cover;
-    formatLrc(a.lyrics)
   }
-
-
+  ap.list.switch(index);
+  ap.play();
+  obj.cover = ap.list.audios[index].cover;
+  formatLrc(a.lyrics);
+}
 
 const formatTime = (time) => {
   const parts = time.split(":");
@@ -204,8 +277,10 @@ function updateLyric(currentTime) {
     if (currentTime >= obj.lrc[i].time) {
       currentLine.value = i;
       // 滚动到当前歌词行
-      const lyricContainer = document.getElementById("lyricContainer");
-      ulstyle.transform=`translateY(${165 - (50 * (i + 1))}px)`
+      if (!isMouseDown.value) {
+        const lyricContainer = document.getElementById("lyricContainer");
+        ulstyle.transform = `translateY(${165 - 50 * (i + 1)}px)`;
+      }
     }
   }
 }
@@ -223,7 +298,7 @@ const formatLrc = (a) => {
     };
     arr.push(obj2);
   }
-  obj.lrc=arr;
+  obj.lrc = arr;
 };
 function addMyAudio() {
   ap = new APlayer({
@@ -233,47 +308,58 @@ function addMyAudio() {
     listMaxHeight: "90px",
     listFolded: false,
     lrcType: 2,
-    mutex:true,
-    loop: 'all',
-    order: 'random',
-    preload: 'auto',
+    mutex: true,
+    loop: "all",
+    order: "random",
+    preload: "auto",
   });
 }
-
-
-
-
-
-
 </script>
 <style lang="scss" scoped>
-*{
+* {
   margin: 0;
   padding: 0;
 }
 
-.lrc{
+.lrc {
   width: 300px;
   position: fixed;
   right: 2%;
   top: 10%;
   text-align: center;
-
 }
-.lyric{
+.lyric {
   overflow: hidden;
   text-align: center !important;
 }
-.lyr{
+.lyr {
   list-style: none;
   height: 330px;
   text-align: center;
+  transition: all 0.5s;
 }
-.lyr li{
+.lyr li {
   height: 50px;
+  user-select: none;
 }
-.img{}
 
+.hr {
+  position: fixed !important;
+  top: 52%;
+  right: 5%;
+  width: 20%;
+}
+// .move{
+//   width: 30%;
+//   position: absolute;
+//   border: 1px solid;
+//   right: 0;
+//   top: 0;
+//   height: 100vh;
+//   z-index: -8;
+//   border: 1px solid;
+
+// }
 </style>
 
   
