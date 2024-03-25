@@ -1,7 +1,7 @@
 <template>
   <div>
     <NavTop></NavTop>
-    <Playing></Playing>
+    <router-view name="layout"></router-view>
     <div class="down">
       <DownMusic></DownMusic>
     </div>
@@ -17,7 +17,7 @@ import { onMounted } from "vue";
 
 onMounted(() =>{
   axios.get("users/function/getOne").then(res=>{
-    console.log(res.data);
+    sessionStorage.setItem("userId",res.data.data.userId);
   })
 })
 </script>

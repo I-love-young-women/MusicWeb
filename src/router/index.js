@@ -52,32 +52,53 @@ export default createRouter({
     },
     {
       path: '/layout',
-      component: () => import('../views/Layout.vue'),
+      components: {
+        default: () => import('../views/Layout.vue'),
+        layout: () => import('../views/Layout.vue')
+      },
       children: [
         {
           path: '',
-          component: () => import('../views/Playing.vue')
+          components: {
+            default: () => import('../views/Playing.vue'),
+            layout: () => import('../views/Playing.vue')
+          }
         },
         {
           path: 'play',
-          component: () => import('../views/Playing.vue')
+          components: {
+            default: () => import('../views/Playing.vue'),
+            layout: () => import('../views/Playing.vue')
+          }
         },
         {
           path: 'recommend',
-          component: () => import('../views/Recommend.vue')
+          components: {
+            default: () => import('../views/Recommend.vue'),
+            layout: () => import('../views/Recommend.vue')
+          }
         },
         {
           path: 'search',
-          component: () => import('../views/Search.vue')
+          components: {
+            default: () => import('../views/Search.vue'),
+            layout: () => import('../views/Search.vue')
+          }
         },
         {
           path: 'myMusic',
-          component: () => import('../views/MyMusic.vue')
+          components: {
+            default: () => import('../views/MyMusic.vue'),
+            layout: () => import('../views/MyMusic.vue')
+          }
         },
         {
           path: 'myRecent',
-          component: () => import('../views/MyRecent.vue')
-        },
+          components: {
+            default: () => import('../views/MyRecent.vue'),
+            layout: () => import('../views/MyRecent.vue')
+          }
+        }
       ]
     },
     // {

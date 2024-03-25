@@ -24,7 +24,8 @@ import { onMounted, reactive } from "vue";
 import axios from "./hooks/request";
 import ColorThief from "colorthief";
 const obj=reactive({
-  playing:''
+  playing:'',
+  played:[]
 })
 onMounted(() => {
   bus.on("changeBackground", (i) => {

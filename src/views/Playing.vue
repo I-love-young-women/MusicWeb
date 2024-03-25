@@ -15,13 +15,21 @@
 </template>
       </el-table-column>
       <el-table-column prop="title" label="歌曲" width="400"></el-table-column>
-      <el-table-column prop="id" label="编号" width="130">
-        <template #default="{ $index }">
-          <el-button @click="add(obj.pageInfo.list[$index])">+</el-button>
-        </template>
-      </el-table-column>
+    
       <el-table-column prop="artist" label="作者" width="180"></el-table-column>
       <el-table-column prop="album" label="专辑" width="200"></el-table-column>
+      <el-table-column prop="id" label="操作" width="130">
+        <template #default="{ $index }">
+          <el-dropdown size="small" split-button type="primary">...<template #dropdown>
+      <el-dropdown-menu>
+        <el-dropdown-item @click="add(obj.pageInfo.list[$index])">添加到播放列表</el-dropdown-item>
+        <el-dropdown-item @click="addList(obj.pageInfo.list[$index].musicId)">添加到我的歌单</el-dropdown-item>
+        <el-dropdown-item >下载</el-dropdown-item>
+      </el-dropdown-menu>
+    </template>
+  </el-dropdown>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="nav_down">
       <el-pagination
@@ -32,25 +40,60 @@
         layout="prev, pager, next"
       ></el-pagination>
     </div>
+
+    <div>
+      <el-drawer v-model="visible" :show-close="false">
+    <template #header="{ close, titleId, titleClass }">
+      <h4 :id="titleId" :class="titleClass">我的歌单!</h4>
+      <el-button  @click="close">
+        <el-icon class="el-icon--left"><CircleCloseFilled /></el-icon>
+        Close
+      </el-button>
+    </template>
+    <div class="demo-collapse">
+    <el-collapse v-model="activeNames" @change="handleChange">
+      <el-collapse-item :title="item.title" name="1" v-for="item,index in obj.list" :key="item.playlistId">
+        <ul  class="infinite-list" style="overflow: auto">
+           <li v-for="i in item.list" :key="i" class="infinite-list-item">{{ i.title }}</li>
+        </ul>
+        <el-button @click="addMusic(index)">添加到这</el-button>
+      </el-collapse-item>
+    </el-collapse>
+  </div>
+  </el-drawer>
+    </div>
+ 
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive,ref } from "vue";
 import axios from "../hooks/request";
 import bus from "../Bus/EventBus.js";
+import { ElButton, ElDrawer } from 'element-plus'
+import { CircleCloseFilled } from '@element-plus/icons-vue'
+
+const visible = ref(false)
 
 const obj = reactive({
   musics: "",
   musicUrl: "",
   pageInfo: {},
   playing: "",
+  list:[],
+  what:-1
 });
+
+function addList(a){
+  obj.what=a
+  visible.value = true
+  getList()
+}
+
 
 const getPage = (page) => {
   axios.get("/music/getAll/" + page + "/8").then((res) => {
     obj.pageInfo = res.data.data;
-    console.log(obj.pageInfo);
   });
 };
 
@@ -58,6 +101,26 @@ onMounted(() => {
   getPage(1);
 });
 
+function getList(){
+  axios.get("/playlists/getList?id="+sessionStorage.getItem("userId")).then(res=>{
+    obj.list=res.data.data
+  })
+}
+
+function addMusic(a){
+  const arr=obj.list[a];
+  if (arr.list.findIndex(a => a.musicId === obj.what)>-1) {
+    alert("已收藏");
+}else{
+axios.post("/user-playlist/addList",{playlistId:arr.playlistId,musicId:obj.what}).then(res=>{
+    alert(res.data.msg)
+    getList()
+  })
+}
+    
+
+  
+}
 function handlePageChange(page) {
   getPage(page);
 }
@@ -74,6 +137,9 @@ function getImageSrc(item) {
 function add(i) {
   bus.emit("addMusic", i);
 }
+
+
+
 </script>
 
 <style lang="scss">
