@@ -98,6 +98,13 @@ export default createRouter({
             default: () => import('../views/MyRecent.vue'),
             layout: () => import('../views/MyRecent.vue')
           }
+        },
+        {
+          path: 'detail',
+          components: {
+            default: () => import('../views/ListDetail.vue'),
+            layout: () => import('../views/ListDetail.vue')
+          }
         }
       ]
     },

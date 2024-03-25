@@ -4,12 +4,7 @@
       <router-view></router-view>
     </div>
 
-    <!-- <div class="right">
-      <Lyric></Lyric>
-    </div>  -->
 
-    <!-- <div class="right"></div> -->
-    
     <div class="showtext"></div>
     <div class="blur-effect"></div>
     <div class="back"></div>
@@ -17,7 +12,6 @@
 </template>
 
 <script setup>
-import Lyric from "./views/Lyric.vue";
 import DownMusic from "./views/DownMusic.vue";
 import bus from "./Bus/EventBus";
 import { onMounted, reactive } from "vue";

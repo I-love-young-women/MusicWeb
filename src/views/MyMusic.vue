@@ -2,7 +2,7 @@
   <div>
     <div class="demo-image" >
       <div v-for="item in obj.list"
-      :key="item.playlistId" class="block">
+      :key="item.playlistId" class="block" style="cursor: pointer;" @click="godetail(item.playlistId)">
         <img :src="getCover(item)" style="width: 100%" />
         <span class="demonstration">{{  item.title }}</span>
       </div>
@@ -12,30 +12,39 @@
 
 <script setup>
 import { onMounted, reactive } from "vue";
+import { useRouter } from "vue-router";
 import axios from "../hooks/request";
+import bus from "../Bus/EventBus.js";
 
 const obj = reactive({
   list: [],
 });
 onMounted(() => {
   getList();
+  
 });
 function getList() {
   axios
     .get("/playlists/getList?id=" + sessionStorage.getItem("userId"))
     .then((res) => {
       obj.list = res.data.data;
-      console.log(obj.list);
+      // console.log(obj.list);
     });
 }
-
+const router = useRouter();
 function getCover(a) {
     if(a.coverImage){
         return "http://localhost:8080/"+a.coverImage
     }
   let cover1 = a.list[0].fileUrl.replace("music/", "img/").replace("mp3", "jpg");
-  console.log(cover1);
   return "http://localhost:8080/" + cover1;
+}
+
+function godetail(id) {
+    router.push({
+        path: '/layout/detail',
+        query: { id: id }, // 将参数以对象形式传递
+    });
 }
 </script>
 

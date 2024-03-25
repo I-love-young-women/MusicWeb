@@ -24,11 +24,9 @@
       </div>
     </div>
     <div value="" v-if="isMouseDown" class="hr">
-      <hr style="color: blue;">
+      <hr style="color: blue" />
     </div>
-    <div class="move">
-
-    </div>
+    <div class="move"></div>
   </div>
 </template>
   
@@ -42,7 +40,8 @@ const obj = reactive({
   musics: [],
   lrc: [],
   cover: "img/default.png",
-  isMove:false
+  isMove: false,
+  history:[]
 });
 const ulstyle = reactive({
   transform: "",
@@ -97,56 +96,56 @@ const audio = reactive([
 const lyricContainer = ref(null);
 const currentLine = ref(0);
 
-
 const isMouseDown = ref(false);
 const startY = ref(0);
 const startTransformY = ref(0);
 let ap; // 声明 APlayer 实例
 
-
 const handleMouseDown = (e) => {
   isMouseDown.value = true;
   startY.value = e.clientY;
-  startTransformY.value = parseFloat(ulstyle.transform.replace('translateY(', '').replace('px)', ''));
-}
+  startTransformY.value = parseFloat(
+    ulstyle.transform.replace("translateY(", "").replace("px)", "")
+  );
+};
 
 const handleMouseUp = () => {
   isMouseDown.value = false;
-  
-   const liElement = document.elementFromPoint(1500, 348.5);
-if (liElement) {
-  if (!isMouseDown.value) {
-    const dataTimeValue = liElement.getAttribute('data-time'); // 获取 data-time 属性的值
-    ap.seek(dataTimeValue);
-      }
-  
-} else {
-    console.log('未找到符合条件的 <li> 元素');
-}
-
-}
-
-
+  const liElement = document.elementFromPoint(1500, 348.5);
+  if (liElement) {
+    if (!isMouseDown.value) {
+      const dataTimeValue = liElement.getAttribute("data-time"); // 获取 data-time 属性的值
+      ap.seek(dataTimeValue);
+    }
+  } else {
+    console.log("未找到符合条件的 <li> 元素");
+  }
+};
 
 const handleMouseMove = (e) => {
   if (isMouseDown.value) {
     const diffY = e.clientY - startY.value;
     ulstyle.transform = `translateY(${startTransformY.value + diffY}px)`;
-    
   }
-}
+};
 function getAllMusic() {
   axios.get("/music/getAll").then((res) => {
     obj.musics = res.data.data;
   });
 }
 onMounted(() => {
-  document.querySelector(".lrc").addEventListener('mousemove', handleMouseMove);
-  document.querySelector(".lrc").addEventListener('mouseup', handleMouseUp);
-  getAllMusic()
+  document.querySelector(".lrc").addEventListener("mousemove", handleMouseMove);
+  document.querySelector(".lrc").addEventListener("mouseup", handleMouseUp);
+  getAllMusic();
   addMyAudio();
   bus.on("addMusic", (a) => {
     addMusic(a);
+  });
+  bus.on("changeList", (a) => {
+    ap.list.clear();
+    a.forEach((a) => addMusic(a));
+    ap.list.switch(0);
+    ap.play();
   });
   bus.on("changeMusic", (a) => {
     changeMusic(a);
@@ -162,23 +161,47 @@ onMounted(() => {
 });
 
 function changeLy(i) {
-  let index=-1;
-  if (typeof(i)!="object") {
+  let index = -1;
+  if (typeof i != "object") {
     axios.get("/music/getCover/" + i).then((res) => {
       var img = new Image();
       img.src = "data:image/jpeg;base64," + res.data.data;
       obj.cover = img.src;
     });
-  }else{
-     index= obj.musics.findIndex(
+  } else {
+    index = obj.musics.findIndex(
       (a) => a.title == ap.list.audios[i.index].name
     );
+    if (index >= 0) {
+      axios.get("/music/getCover/" + obj.musics[index].musicId).then((res) => {
+        var img = new Image();
+        img.src = "data:image/jpeg;base64," + res.data.data;
+        obj.cover = img.src;
+      });
+    }
   }
-  bus.emit(
-      "changeBackground",
-      obj.musics[index] ? obj.musics[index].musicId : 1
-    );
-    formatLrc(obj.musics[index] ? obj.musics[index].lyrics : audio[0].lrc);
+  let musicId= obj.musics[index] ? obj.musics[index].musicId : 1
+  bus.emit("changeBackground",musicId);
+   let index2=obj.history.findIndex(a=>a.title == obj.musics[index].title)
+   
+  let hId=obj.history[index2] ? obj.history[index2].hId:'';
+  const userPlaylist={
+    hId:hId,
+    userId: sessionStorage.getItem("userId"),
+    musicId:musicId,
+    playTime:new Date()
+  }
+  if(userPlaylist){
+    axios.post("/history/addHis",userPlaylist).then(res=>{
+      
+    })
+  }
+  formatLrc(obj.musics[index] ? obj.musics[index].lyrics : audio[0].lrc);
+}
+function getHis(){
+  axios.get("/history/getHis?id="+sessionStorage.getItem("userId")).then(res=>{
+        obj.history=res.data
+  })
 }
 
 function addMusic(a) {
@@ -191,8 +214,8 @@ function addMusic(a) {
   });
   if (index < 0) {
     let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
-    if(cover1.length <= 0) {
-      cover1="img/default.png"
+    if (cover1.length <= 0) {
+      cover1 = "img/default.png";
     }
     ap.list.add([
       {
@@ -219,8 +242,8 @@ function changeMusic(a) {
   });
   if (index < 0) {
     let cover1 = a.fileUrl.replace("music/", "img/").replace("mp3", "jpg");
-    if(cover1.length <= 0) {
-      cover1="img/default.png"
+    if (cover1.length <= 0) {
+      cover1 = "img/default.png";
     }
     ap.list.add([
       {
@@ -256,7 +279,7 @@ function updateLyric(currentTime) {
       // 滚动到当前歌词行
       if (!isMouseDown.value) {
         const lyricContainer = document.getElementById("lyricContainer");
-      ulstyle.transform = `translateY(${165 - 50 * (i + 1)}px)`;
+        ulstyle.transform = `translateY(${165 - 50 * (i + 1)}px)`;
       }
     }
   }
@@ -308,7 +331,6 @@ function addMyAudio() {
 .lyric {
   overflow: hidden;
   text-align: center !important;
-  
 }
 .lyr {
   list-style: none;
@@ -321,11 +343,11 @@ function addMyAudio() {
   user-select: none;
 }
 
-.hr{
+.hr {
   position: fixed !important;
   top: 52%;
   right: 5%;
-  width: 20%; 
+  width: 20%;
 }
 // .move{
 //   width: 30%;
