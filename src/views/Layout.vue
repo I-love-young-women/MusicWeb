@@ -13,7 +13,11 @@ import Playing from "../views/Playing.vue";
 import NavTop from "../views/NavTop.vue"
 import DownMusic from "../views/DownMusic.vue";
 import axios from '../hooks/request'
-import { onMounted } from "vue";
+import { onMounted, reactive } from "vue";
+
+const obj = reactive({
+  user:{}
+})
 
 onMounted(() =>{
   axios.get("users/function/getOne").then(res=>{

@@ -15,6 +15,11 @@
 </template>
       </el-table-column>
       <el-table-column prop="title" label="歌曲" width="400"></el-table-column>
+      <el-table-column prop="id" label="编号" width="130">
+        <template #default="{ $index }">
+          <el-button @click="add(obj.pageInfo.list[$index])">+</el-button>
+        </template>
+      </el-table-column>
     
       <el-table-column prop="artist" label="作者" width="180"></el-table-column>
       <el-table-column prop="album" label="专辑" width="200"></el-table-column>
@@ -24,7 +29,7 @@
       <el-dropdown-menu>
         <el-dropdown-item @click="add(obj.pageInfo.list[$index])">添加到播放列表</el-dropdown-item>
         <el-dropdown-item @click="addList(obj.pageInfo.list[$index].musicId)">添加到我的歌单</el-dropdown-item>
-        <el-dropdown-item >下载</el-dropdown-item>
+        <el-dropdown-item @click="down(obj.pageInfo.list[$index].fileUrl)">下载</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -80,10 +85,50 @@ const obj = reactive({
   musicUrl: "",
   pageInfo: {},
   playing: "",
+  user:{},
   list:[],
   what:-1
 });
 
+function down(i){
+  console.log(i);
+    // 发送get请求
+    axios
+    .get('/music/downloadFile', {
+        params: {
+            // 向后端传入下载路径
+            file: i,
+        }
+    })
+    .then(res => {
+        // alert("请求成功");
+        console.log(res.data); // 获取服务端提供的数据
+        let blob = new Blob([res.data])
+        let contentDisposition = res.headers['Content-Type: text/plain; charset=UTF-8']
+        let pattern = new RegExp('filename=([^;]+\\.[^\\.;]+);*')
+        let result = pattern.exec(contentDisposition)
+        // 使用decodeURI对名字进行解码
+        let fileName = decodeURI(result[1])
+        let downloadElement = document.createElement('a')
+        // 创建下载的链接
+        let href = window.URL.createObjectURL(blob)
+        downloadElement.style.display = 'none'
+        downloadElement.href = href
+        // 下载后文件名
+        downloadElement.download = fileName
+        document.body.appendChild(downloadElement)
+        // 点击下载
+        downloadElement.click()
+        // 下载完成移除元素
+        document.body.removeChild(downloadElement)
+        // 释放掉blob对象
+        window.URL.revokeObjectURL(href)
+    })
+    .catch(() => {
+        alert("请求出错");
+    })
+    // alert(url);
+}
 function addList(a){
   obj.what=a
   visible.value = true
@@ -96,9 +141,17 @@ const getPage = (page) => {
     obj.pageInfo = res.data.data;
   });
 };
-
+function getOne(){
+  let user = JSON.parse(sessionStorage.getItem("user"))
+  obj.user=user
+  console.log(obj.user+"11");
+}
+// function addList(index){
+//   console.log(index);
+// }
 onMounted(() => {
   getPage(1);
+  getOne();
 });
 
 function getList(){
