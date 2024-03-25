@@ -15,16 +15,12 @@
 </template>
       </el-table-column>
       <el-table-column prop="title" label="歌曲" width="400"></el-table-column>
-<<<<<<< HEAD
       <el-table-column prop="id" label="编号" width="130">
         <template #default="{ $index }">
           <el-button @click="add(obj.pageInfo.list[$index])">+</el-button>
-          <el-button @click="addList(obj.pageInfo.list[$index])">addList</el-button>
         </template>
       </el-table-column>
-=======
     
->>>>>>> de0303f2a2f3bce23245d46656670a40e30d402a
       <el-table-column prop="artist" label="作者" width="180"></el-table-column>
       <el-table-column prop="album" label="专辑" width="200"></el-table-column>
       <el-table-column prop="id" label="操作" width="130">
@@ -89,12 +85,9 @@ const obj = reactive({
   musicUrl: "",
   pageInfo: {},
   playing: "",
-<<<<<<< HEAD
-  user:{}
-=======
+  user:{},
   list:[],
   what:-1
->>>>>>> de0303f2a2f3bce23245d46656670a40e30d402a
 });
 
 function addList(a){
